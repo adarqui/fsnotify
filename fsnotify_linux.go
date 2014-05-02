@@ -47,7 +47,7 @@ const (
 	sys_IN_MOVE_SELF     uint32 = syscall.IN_MOVE_SELF
 	sys_IN_OPEN          uint32 = syscall.IN_OPEN
 
-	sys_AGNOSTIC_EVENTS = sys_IN_MOVED_TO | sys_IN_MOVED_FROM | sys_IN_CREATE | sys_IN_ATTRIB | sys_IN_MODIFY | sys_IN_MOVE_SELF | sys_IN_DELETE | sys_IN_DELETE_SELF
+	sys_AGNOSTIC_EVENTS = sys_IN_MOVED_TO | sys_IN_MOVED_FROM | sys_IN_CREATE | sys_IN_ATTRIB | sys_IN_MODIFY | sys_IN_MOVE_SELF | sys_IN_DELETE | sys_IN_DELETE_SELF | sys_IN_CLOSE_WRITE
 
 	// Special events
 	sys_IN_ISDIR      uint32 = syscall.IN_ISDIR
@@ -60,6 +60,10 @@ type FileEvent struct {
 	mask   uint32 // Mask of events
 	cookie uint32 // Unique cookie associating related events (for rename(2))
 	Name   string // File name (optional)
+}
+
+func (e *FileEvent) IsCloseWrite() bool {
+	return (e.mask&sys_IN_CLOSE_WRITE) == sys_IN_CLOSE_WRITE
 }
 
 // IsCreate reports whether the FileEvent was triggered by a creation
@@ -272,7 +276,6 @@ func (w *Watcher) readEvents() {
 					}
 				}
 				w.fsnmut.Unlock()
-
 				w.internalEvent <- event
 			}
 
