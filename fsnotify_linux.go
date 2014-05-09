@@ -204,7 +204,8 @@ func (w *Watcher) removeWatch(path string) error {
 // received events into Event objects and sends them via the Event channel
 func (w *Watcher) readEvents() {
 	var (
-		buf   [syscall.SizeofInotifyEvent * 4096]byte // Buffer for a maximum of 4096 raw events
+		// Added the 1024.. you have no idea.
+		buf   [1024 * syscall.SizeofInotifyEvent * 4096]byte // Buffer for a maximum of 4096 raw events
 		n     int                                     // Number of bytes read with read()
 		errno error                                   // Syscall errno
 	)
